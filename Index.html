@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeCart - Premium Shopping Experience</title>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --secondary-color: #e67e22;
+  --secondary-dark: #d35400;
+  --background-color: #f8f9fa;
+  --text-color: #2c3e50;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: var(--transition);
+}
+
+.header:hover {
+  background-color: var(--primary-dark);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 30px;
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  position: sticky;
+  top: 70px;
+  z-index: 999;
+}
+
+.nav-menu button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: var(--transition);
+  border-radius: var(--border-radius);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-menu button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary-color);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-menu button:hover::after,
+.nav-menu button.active::after {
+  transform: scaleX(1);
+}
+
+.nav-menu button:hover,
+.nav-menu button.active {
+  color: var(--primary-color);
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.auth-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+
+.auth-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  transition: var(--transition);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.btn {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.error-message {
+  color: var(--error-color);
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 500;
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.success-message {
+  color: var(--success-color);
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 500;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toggle-auth {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.toggle-auth button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.toggle-auth button:hover {
+  color: var(--primary-dark);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.product-card:hover img {
+  transform: scale(1.1);
+}
+
+.product-card-content {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.product-card p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.product-card .price {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+.product-card .btn {
+  margin-top: 15px;
+}
+
+.cart-item, .wishlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: white;
+  border-radius: var(--border-radius);
+  margin-bottom: 15px;
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+
+.cart-item:hover, .wishlist-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cart-item img, .wishlist-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-right: 15px;
+}
+
+.cart-item-details, .wishlist-item-details {
+  flex-grow: 1;
+}
+
+.cart-item-name, .wishlist-item-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: var(--text-color);
+}
+
+.cart-item-price, .wishlist-item-price {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.cart-total {
+  text-align: right;
+  margin-top: 30px;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+  animation: slideUp 0.5s ease-out;
+}
+
+.order-history-item {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+}
+
+.order-history-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.order-history-item h3 {
+  margin-bottom: 15px;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.order-history-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-right: 15px;
+}
+
+.order-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.order-status.pending {
+  background-color: #ffeaa7;
+  color: #d35400;
+}
+
+.order-status.successful {
+  background-color: #55efc4;
+  color: #00b894;
+}
+
+.logout-btn {
+  background-color: var(--error-color);
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+  }
+
+  .nav-menu button {
+    margin: 5px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .cart-item, .wishlist-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cart-item img, .wishlist-item img {
+    margin-bottom: 10px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --secondary-color: #e67e22;
+    --secondary-dark: #d35400;
+  }
+
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  .auth-container,
+  .product-card,
+  .cart-item,
+  .wishlist-item,
+  .order-history-item {
+    background-color: #2c2c2c;
+  }
+
+  .nav-menu {
+    background-color: #2c2c2c;
+  }
+
+  .nav-menu button {
+    color: var(--text-color);
+  }
+
+  .form-group input {
+    background-color: #3a3a3a;
+    border-color: #4a4a4a;
+    color: var(--text-color);
+  }
+
+  .form-group input:focus {
+    border-color: var(--primary-color);
+  }
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDb3xBYvbskCHMJaPmZ6w_3_WIvHbVi3l0",
+            authDomain: "fir-2-580b2.firebaseapp.com",
+            databaseURL: "https://fir-2-580b2-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fir-2-580b2",
+            storageBucket: "fir-2-580b2.appspot.com",
+            messagingSenderId: "34964014776",
+            appId: "1:34964014776:web:6ea86067a4f6e2191f964d",
+            measurementId: "G-SYSPNNWD58"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        function App() {
+            const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
+            const [isAdmin, setIsAdmin] = React.useState(false);
+
+            React.useEffect(() => {
+                const unsubscribe = auth.onAuthStateChanged((user) => {
+                    setUser(user);
+                    if (user) {
+                        database.ref(`users/${user.uid}/isAdmin`).once('value', (snapshot) => {
+                            setIsAdmin(snapshot.val() || false);
+                        });
+                    }
+                    setLoading(false);
+                });
+
+                return () => unsubscribe();
+            }, []);
+
+            if (loading) {
+                return <div className="container">Loading...</div>;
+            }
+
+            return (
+                <div className="container">
+                    <header className="header">
+                        <h1>LuxeCart</h1>
+                    </header>
+                    {user ? <Dashboard user={user} isAdmin={isAdmin} /> : <Auth />}
+                </div>
+            );
+        }
+
+        function Auth() {
+            const [isLogin, setIsLogin] = React.useState(true);
+            const [email, setEmail] = React.useState('');
+            const [password, setPassword] = React.useState('');
+            const [error, setError] = React.useState('');
+            const [success, setSuccess] = React.useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setSuccess('');
+
+                try {
+                    if (isLogin) {
+                        await auth.signInWithEmailAndPassword(email, password);
+                    } else {
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        await database.ref(`users/${userCredential.user.uid}`).set({
+                            email: email,
+                            isAdmin: false
+                        });
+                        setSuccess('Account created successfully!');
+                    }
+                } catch (error) {
+                    setError(error.message);
+                }
+            };
+
+            return (
+                <div className="auth-container">
+                    <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="btn btn-block">
+                            {isLogin ? 'Login' : 'Sign Up'}
+                        </button>
+                    </form>
+                    {error && <p className="error-message">{error}</p>}
+                    {success && <p className="success-message">{success}</p>}
+                    <div className="toggle-auth">
+                        <button onClick={() => setIsLogin(!isLogin)}>
+                            {isLogin ? 'Need an account? Sign up' : 'Already have an account? Login'}
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function Dashboard({ user, isAdmin }) {
+            const [activeTab, setActiveTab] = React.useState('products');
+            const [products, setProducts] = React.useState([]);
+            const [cart, setCart] = React.useState([]);
+            const [wishlist, setWishlist] = React.useState([]);
+            const [orders, setOrders] = React.useState([]);
+
+            React.useEffect(() => {
+                // Fetch products
+                const productsRef = database.ref('products');
+                productsRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const productList = Object.entries(data).map(([id, product]) => ({
+                            id,
+                            ...product,
+                        }));
+                        setProducts(productList);
+                    }
+                });
+
+                // Fetch user's cart
+                const cartRef = database.ref(`users/${user.uid}/cart`);
+                cartRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const cartList = Object.entries(data).map(([id, item]) => ({
+                            id,
+                            ...item,
+                        }));
+                        setCart(cartList);
+                    } else {
+                        setCart([]);
+                    }
+                });
+
+                // Fetch user's wishlist
+                const wishlistRef = database.ref(`users/${user.uid}/wishlist`);
+                wishlistRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const wishlistList = Object.entries(data).map(([id, item]) => ({
+                            id,
+                            ...item,
+                        }));
+                        setWishlist(wishlistList);
+                    } else {
+                        setWishlist([]);
+                    }
+                });
+
+                // Fetch user's orders
+                const ordersRef = database.ref(`users/${user.uid}/orders`);
+                ordersRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const orderList = Object.entries(data).map(([id, order]) => ({
+                            id,
+                            ...order,
+                        }));
+                        setOrders(orderList);
+                    } else {
+                        setOrders([]);
+                    }
+                });
+
+                return () => {
+                    productsRef.off();
+                    cartRef.off();
+                    wishlistRef.off();
+                    ordersRef.off();
+                };
+            }, [user]);
+
+            const handleLogout = () => {
+                auth.signOut();
+            };
+
+            const addToCart = (product) => {
+                const cartRef = database.ref(`users/${user.uid}/cart/${product.id}`);
+                cartRef.transaction((currentData) => {
+                    if (currentData === null) {
+                        return { ...product, quantity: 1 };
+                    } else {
+                        return { ...currentData, quantity: currentData.quantity + 1 };
+                    }
+                });
+            };
+
+            const removeFromCart = (productId) => {
+                const cartRef = database.ref(`users/${user.uid}/cart/${productId}`);
+                cartRef.remove();
+            };
+
+            const addToWishlist = (product) => {
+                const wishlistRef = database.ref(`users/${user.uid}/wishlist/${product.id}`);
+                wishlistRef.set(product);
+            };
+
+            const removeFromWishlist = (productId) => {
+                const wishlistRef = database.ref(`users/${user.uid}/wishlist/${productId}`);
+                wishlistRef.remove();
+            };
+
+            const placeOrder = () => {
+                const orderRef = database.ref(`users/${user.uid}/orders`).push();
+                const order = {
+                    items: cart,
+                    total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+                    date: new Date().toISOString(),
+                    status: 'pending'
+                };
+                orderRef.set(order);
+
+                // Clear the cart
+                database.ref(`users/${user.uid}/cart`).remove();
+            };
+
+            const updateOrderStatus = (orderId, newStatus) => {
+                const orderRef = database.ref(`users/${user.uid}/orders/${orderId}`);
+                orderRef.update({ status: newStatus });
+            };
+
+            return (
+                <div>
+                    <nav className="nav-menu">
+                        <button
+                            className={activeTab === 'products' ? 'active' : ''}
+                            onClick={() => setActiveTab('products')}
+                        >
+                            Products
+                        </button>
+                        <button
+                            className={activeTab === 'cart' ? 'active' : ''}
+                            onClick={() => setActiveTab('cart')}
+                        >
+                            Cart
+                        </button>
+                        <button
+                            className={activeTab === 'wishlist' ? 'active' : ''}
+                            onClick={() => setActiveTab('wishlist')}
+                        >
+                            Wishlist
+                        </button>
+                        <button
+                            className={activeTab === 'orders' ? 'active' : ''}
+                            onClick={() => setActiveTab('orders')}
+                        >
+                            Orders
+                        </button>
+                        <button onClick={handleLogout} className="logout-btn">
+                            Logout
+                        </button>
+                    </nav>
+
+                    {activeTab === 'products' && (
+                        <div className="product-grid">
+                            {products.map((product) => (
+                                <div key={product.id} className="product-card">
+                                    <img src={product.image} alt={product.name} />
+                                    <div className="product-card-content">
+                                        <h3>{product.name}</h3>
+                                        <p className="price">${product.price.toFixed(2)}</p>
+                                        <p>{product.description}</p>
+                                        <button onClick={() => addToCart(product)} className="btn">
+                                            Add to Cart
+                                        </button>
+                                        <button onClick={() => addToWishlist(product)} className="btn">
+                                            Add to Wishlist
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'cart' && (
+                        <div>
+                            <h2>Your Cart</h2>
+                            {cart.map((item) => (
+                                <div key={item.id} className="cart-item">
+                                    <img src={item.image} alt={item.name} />
+                                    <span>{item.name} - ${item.price.toFixed(2)} x {item.quantity}</span>
+                                    <button onClick={() => removeFromCart(item.id)} className="btn">
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <div className="cart-total">
+                                Total: ${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+                            </div>
+                            <button onClick={placeOrder} className="btn">Place Order</button>
+                        </div>
+                    )}
+
+                    {activeTab === 'wishlist' && (
+                        <div>
+                            <h2>Your Wishlist</h2>
+                            {wishlist.map((item) => (
+                                <div key={item.id} className="wishlist-item">
+                                    <img src={item.image} alt={item.name} />
+                                    <span>{item.name} - ${item.price.toFixed(2)}</span>
+                                    <button onClick={() => removeFromWishlist(item.id)} className="btn">
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'orders' && (
+                        <div>
+                            <h2>Your Orders</h2>
+                            {orders.map((order) => (
+                                <div key={order.id} className="order-history-item">
+                                    <h3>Order Date: {new Date(order.date).toLocaleString()}</h3>
+                                    <p>Total: ${order.total.toFixed(2)}</p>
+                                    <p className={`order-status ${order.status}`}>{order.status}</p>
+                                    <ul>
+                                        {order.items.map((item, index) => (
+                                            <li key={index}>
+                                                <img src={item.image} alt={item.name} />
+                                                {item.name} - ${item.price.toFixed(2)} x {item.quantity}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {isAdmin && (
+                        <div className="admin-panel">
+                            <h2>Admin Panel</h2>
+                            <h3>Update Order Status</h3>
+                            {orders.map((order) => (
+                                <div key={order.id}>
+                                    <p>Order ID: {order.id}</p>
+                                    <select
+                                        value={order.status}
+                                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                                    >
+                                        <option value="pending">Pending</option>
+                                        <option value="successful">Successful</option>
+                                    </select>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
